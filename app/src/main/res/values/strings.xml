@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NotePro</string>
+    <string name="title_activity_subject_detail">SubjectDetailActivity</string>
 </resources>
