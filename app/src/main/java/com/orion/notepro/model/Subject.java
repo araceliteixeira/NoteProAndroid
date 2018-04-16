@@ -17,4 +17,28 @@ public class Subject {
         this.subject = subject;
         this.color = color;
     }
+
+    public long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }
