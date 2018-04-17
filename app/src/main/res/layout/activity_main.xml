@@ -9,7 +9,8 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/background"/>
+        android:src="@drawable/background"
+        android:scaleType="fitXY"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -32,7 +33,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="70px"
-            android:text="Subject List"/>
+            android:text="Subject List"
+            android:onClick="showSubjectList"/>
 
         <Button
             android:id="@+id/btnNewNote"
@@ -40,7 +42,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50px"
-            android:text="New Note"/>
+            android:text="New Note"
+            android:onClick="createNewNote"/>
 
         <Button
             android:id="@+id/btnNoteList"
@@ -48,6 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50px"
-            android:text="Note List"/>
+            android:text="Note List"
+            android:onClick="showNoteList"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

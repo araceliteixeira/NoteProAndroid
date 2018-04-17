@@ -16,10 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.SubjectListActivity" />
-        <activity android:name=".view.NoteListActivity" />
-        <activity android:name=".view.NoteDetailActivity" />
-        <activity android:name=".view.SubjectDetailActivity"></activity>
+        <activity android:name=".view.SubjectListActivity" android:label="Subject List" />
+        <activity android:name=".view.NoteListActivity" android:label="Note List" />
+        <activity android:name=".view.NoteDetailActivity" android:label="Note Detail" />
+        <activity android:name=".view.SubjectDetailActivity" android:label="Subject Detail" ></activity>
     </application>
 
 </manifest>
