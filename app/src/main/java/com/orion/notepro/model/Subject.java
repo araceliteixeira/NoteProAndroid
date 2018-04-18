@@ -5,14 +5,14 @@ import android.graphics.Color;
 public class Subject {
     private long subjectId;
     private String subject;
-    private Color color;
+    private int color;
 
-    public Subject(String subject, Color color) {
+    public Subject(String subject, int color) {
         this.subject = subject;
         this.color = color;
     }
 
-    public Subject(long id, String subject, Color color) {
+    public Subject(long id, String subject, int color) {
         subjectId = id;
         this.subject = subject;
         this.color = color;
@@ -34,11 +34,11 @@ public class Subject {
         this.subject = subject;
     }
 
-    public Color getColor() {
+    public int getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(int color) {
         this.color = color;
     }
 }

@@ -9,6 +9,7 @@ public class Media {
     private Bitmap picture;
     private File audio;
     private MediaType type;
+    private long noteId;
 
     public Media(long mediaId, Bitmap picture, MediaType type) {
         this.mediaId = mediaId;
@@ -68,5 +69,13 @@ public class Media {
 
     public void setType(MediaType type) {
         this.type = type;
+    }
+
+    public long getNoteId() {
+        return noteId;
+    }
+
+    public void setNoteId(long noteId) {
+        this.noteId = noteId;
     }
 }
