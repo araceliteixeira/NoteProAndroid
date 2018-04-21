@@ -1,29 +1,18 @@
 package com.orion.notepro.controller;
 
-import java.io.File;
-import java.sql.Date;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteStatement;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
-
-import com.orion.notepro.R;
 import com.orion.notepro.model.Media;
-import com.orion.notepro.model.MediaType;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
@@ -35,8 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
-
+    
     private static final String DROP_SUBJECT_TABLE = "DROP TABLE tbl_authors;";
     private static final String DROP_NOTE_TABLE = "DROP TABLE tbl_books;";
     private static final String DROP_MEDIA_TABLE = "DROP TABLE tbl_books;";
@@ -47,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_SUBJECT_TABLE = "CREATE TABLE IF NOT EXISTS SUBJECT (subject_id INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                "DESCRIPTION TEXT NOT NULL, COLOR TEXT NOT NULL, ACTIVE INTEGER DEFAULT 1);";
+                "DESCRIPTION TEXT NOT NULL, COLOR INTEGER NOT NULL, ACTIVE INTEGER DEFAULT 1);";
         String CREATE_NOTE_TABLE = "CREATE TABLE IF NOT EXISTS NOTE (NOTE_ID INTEGER PRIMARY KEY AUTOINCREMENT , " +
                 "TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL, DATETIME TEXT NOT NULL, LATITUDE REAL NOT NULL, LONGITUDE REAL NOT NULL, " +
                 "SUBJECT_ID INTEGER NOT NULL, FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECT(SUBJECT_ID));";
@@ -73,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         addSubject(new Subject("Work", Color.YELLOW));
         addSubject(new Subject("College", Color.GREEN));
     }
+
     public void addSomeNotes() {
 
     }
@@ -86,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("SUBJECT",null, values);
         db.close();
     }
+
     public void addNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -99,6 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("NOTE",null, values);
         db.close();
     }
+
     public void addMedia(Media media) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -111,6 +102,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public List<Subject> selectAllSubjects() {
+        SQLiteDatabase db = getReadableDatabase();
 
+        String sql = "SELECT * FROM SUBJECT;";
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Subject> subjectList = new ArrayList<Subject>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("subject_id"));
+            String subject = c.getString(c.getColumnIndex("DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("COLOR"));
+
+            subjectList.add(new Subject(id, subject, color));
+        }
+        c.close();
+
+        return subjectList;
+    }
+
+    //Utils
+    public String dateToString (Date date) {
+        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        String s = dateFormat.format(date);
+        return s;
+    }
+    public Date StringToDate (String dateString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date d = new Date();
+        try {
+            d = dateFormat.parse(dateString);
+            System.out.println(d);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
 
 }

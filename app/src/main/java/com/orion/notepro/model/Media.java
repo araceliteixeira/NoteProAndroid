@@ -3,8 +3,9 @@ package com.orion.notepro.model;
 import android.graphics.Bitmap;
 
 import java.io.File;
+import java.io.Serializable;
 
-public class Media {
+public class Media implements Serializable {
     private long mediaId;
     private Bitmap picture;
     private File audio;

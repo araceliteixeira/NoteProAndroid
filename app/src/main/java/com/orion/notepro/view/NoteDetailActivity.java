@@ -1,5 +1,6 @@
 package com.orion.notepro.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TextInputEditText;
@@ -9,10 +10,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.orion.notepro.R;
-import com.orion.notepro.model.Note;
-import com.orion.notepro.model.Subject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,5 +69,8 @@ public class NoteDetailActivity extends AppCompatActivity {
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
     }
 
-
+    public void showMap(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
 }

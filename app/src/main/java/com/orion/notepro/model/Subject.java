@@ -2,7 +2,9 @@ package com.orion.notepro.model;
 
 import android.graphics.Color;
 
-public class Subject {
+import java.io.Serializable;
+
+public class Subject implements Serializable {
     private long subjectId;
     private String subject;
     private int color;

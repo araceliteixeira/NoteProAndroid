@@ -2,11 +2,12 @@ package com.orion.notepro.model;
 
 import android.location.Location;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Note {
+public class Note implements Serializable {
     private long noteId;
     private String title;
     private String description;
