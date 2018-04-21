@@ -1,6 +1,8 @@
 package com.orion.notepro.model;
 
-public enum MediaType {
+import java.io.Serializable;
+
+public enum MediaType implements Serializable {
     PHOTO("Photo", 1),
     AUDIO("Audio", 2);
 
