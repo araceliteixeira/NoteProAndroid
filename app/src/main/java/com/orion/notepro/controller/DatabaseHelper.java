@@ -1,10 +1,14 @@
 package com.orion.notepro.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
@@ -31,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_SUBJECT_TABLE = "CREATE TABLE IF NOT EXISTS SUBJECT (subject_id INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                "DESCRIPTION TEXT NOT NULL, COLOR TEXT NOT NULL, ACTIVE INTEGER DEFAULT 1);";
+                "DESCRIPTION TEXT NOT NULL, COLOR INTEGER NOT NULL, ACTIVE INTEGER DEFAULT 1);";
         String CREATE_NOTE_TABLE = "CREATE TABLE IF NOT EXISTS NOTE (NOTE_ID INTEGER PRIMARY KEY AUTOINCREMENT , " +
                 "TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL, DATETIME TEXT NOT NULL, LATITUDE REAL NOT NULL, LONGITUDE REAL NOT NULL, " +
                 "SUBJECT_ID INTEGER NOT NULL, FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECT(SUBJECT_ID));";
@@ -57,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         addSubject(new Subject("Work", Color.YELLOW));
         addSubject(new Subject("College", Color.GREEN));
     }
+
     public void addSomeNotes() {
 
     }
@@ -70,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("SUBJECT",null, values);
         db.close();
     }
+
     public void addNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -83,6 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("NOTE",null, values);
         db.close();
     }
+
     public void addMedia(Media media) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -93,6 +100,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.insert("MEDIA",null, values);
         db.close();
+    }
+
+    public List<Subject> selectAllSubjects() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT * FROM SUBJECT;";
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Subject> subjectList = new ArrayList<Subject>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("subject_id"));
+            String subject = c.getString(c.getColumnIndex("DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("COLOR"));
+
+            subjectList.add(new Subject(id, subject, color));
+        }
+        c.close();
+
+        return subjectList;
     }
 
     //Utils
