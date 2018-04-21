@@ -1,29 +1,14 @@
 package com.orion.notepro.controller;
 
-import java.io.File;
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
-import android.app.Activity;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteStatement;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
-
-import com.orion.notepro.R;
 import com.orion.notepro.model.Media;
-import com.orion.notepro.model.MediaType;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
@@ -35,8 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
-
+    
     private static final String DROP_SUBJECT_TABLE = "DROP TABLE tbl_authors;";
     private static final String DROP_NOTE_TABLE = "DROP TABLE tbl_books;";
     private static final String DROP_MEDIA_TABLE = "DROP TABLE tbl_books;";
@@ -111,6 +95,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-
+    //Utils
+    public String dateToString (Date date) {
+        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        String s = dateFormat.format(date);
+        return s;
+    }
+    public Date StringToDate (String dateString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date d = new Date();
+        try {
+            d = dateFormat.parse(dateString);
+            System.out.println(d);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
 
 }
