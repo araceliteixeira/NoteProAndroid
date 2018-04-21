@@ -1,9 +1,6 @@
 package com.orion.notepro.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -12,6 +9,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
 import com.orion.notepro.model.Media;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "noteandroid.db";
     private static final int DATABASE_VERSION = 1;
 
-    DatabaseHelper(Context context) {
+    public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
     
@@ -81,13 +81,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("title", note.getTitle());
         values.put("description", note.getDescription());
-        //values.put("datetime", note.getDateTime());
-        values.put("latitude", note.getLocation().getLatitude());
-        values.put("longitude", note.getLocation().getLongitude());
+        values.put("datetime", note.getDateTimeAsString());
+        values.put("latitude", note.getLatLng().latitude);
+        values.put("longitude", note.getLatLng().longitude);
         values.put("subject_id", note.getSubject().getSubjectId());
 
-        db.insert("NOTE",null, values);
+        long response = db.insert("NOTE",null, values);
+        Log.i("NotePro", "Insert return: " + response);
         db.close();
+    }
+
+    public List<Note> selectAllNotes() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT " +
+                "NOTE.NOTE_ID AS NOTE_ID, " +
+                "NOTE.TITLE AS NOTE_TITLE, " +
+                "NOTE.DESCRIPTION AS NOTE_DESCRIPTION, " +
+                "NOTE.DATETIME AS NOTE_DATETIME, " +
+                "NOTE.LONGITUDE AS NOTE_LONGITUDE, " +
+                "NOTE.LATITUDE AS NOTE_LATITUDE, " +
+                "SUBJECT.SUBJECT_ID AS SUBJECT_ID, " +
+                "SUBJECT.DESCRIPTION AS SUBJECT_DESCRIPTION, " +
+                "SUBJECT.COLOR AS SUBJECT_COLOR " +
+                "FROM NOTE, SUBJECT WHERE NOTE.SUBJECT_ID = SUBJECT.subject_id;";
+
+        db.compileStatement(sql);
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Note> noteList = new ArrayList<Note>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("NOTE_ID"));
+            String title = c.getString(c.getColumnIndex("NOTE_TITLE"));
+            String description = c.getString(c.getColumnIndex("NOTE_DESCRIPTION"));
+            String dateTime = c.getString(c.getColumnIndex("NOTE_DATETIME"));
+            double longitude = c.getDouble(c.getColumnIndex("NOTE_LONGITUDE"));
+            double latitude = c.getDouble(c.getColumnIndex("NOTE_LATITUDE"));
+
+            int subjectId = c.getInt(c.getColumnIndex("SUBJECT_ID"));
+            String subjectDescription = c.getString(c.getColumnIndex("SUBJECT_DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("SUBJECT_COLOR"));
+
+            final Subject subject = new Subject(subjectId, subjectDescription, color);
+
+            noteList.add(new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude)));
+        }
+        c.close();
+
+        return noteList;
     }
 
     public void addMedia(Media media) {
@@ -119,27 +162,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             subjectList.add(new Subject(id, subject, color));
         }
         c.close();
+        db.close();
 
         return subjectList;
     }
-
-    //Utils
-    public String dateToString (Date date) {
-        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        String s = dateFormat.format(date);
-        return s;
-    }
-    public Date StringToDate (String dateString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        Date d = new Date();
-        try {
-            d = dateFormat.parse(dateString);
-            System.out.println(d);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return d;
-    }
-
 }

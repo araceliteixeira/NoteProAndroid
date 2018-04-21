@@ -1,6 +1,7 @@
 package com.orion.notepro.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -30,7 +31,11 @@ public class SubjectListActivity extends AppCompatActivity {
 
         DatabaseHelper dao = new DatabaseHelper(this);
         subjects = dao.selectAllSubjects();
-        dao.close();
+
+        if(subjects.size() == 0) {
+            dao.addSomeSubjects();
+            subjects = dao.selectAllSubjects();
+        }
 
         final SubjectListAdapter adapter = new SubjectListAdapter(this, R.layout.activity_subject_list, subjects);
         subjectList.setAdapter(adapter);

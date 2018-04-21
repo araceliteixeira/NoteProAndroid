@@ -1,6 +1,8 @@
 package com.orion.notepro.view;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TextInputEditText;
@@ -12,7 +14,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.orion.notepro.R;
+import com.orion.notepro.controller.DatabaseHelper;
+import com.orion.notepro.model.Note;
+import com.orion.notepro.model.Subject;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +64,23 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void saveNote() {
         Log.i("NotePro", edtNoteTitle.getText().toString());
+
+        //public Note(String title, String description, Subject subject, LocalDateTime dateTime, LatLng latLng) {
+        final Note note = new Note(
+                edtNoteTitle.getText().toString(),
+                "Test Description",
+                new Subject(1,"Personal", Color.BLUE),
+                LocalDateTime.now(),
+                new LatLng(43.653226, -79.383184));
+
+        DatabaseHelper dao = new DatabaseHelper(this);
+        dao.addNote(note);
+
+        //Only to see if the note was saved
+        List<Note> notes = dao.selectAllNotes();
+        for (Note n : notes) {
+            Log.i("NotePro", n.toString());
+        }
     }
 
     private void initScreen() {
