@@ -53,5 +53,14 @@
             android:layout_marginTop="50px"
             android:text="Note List"
             android:onClick="showNoteList"/>
+
+        <Button
+            android:id="@+id/btnShowNotesOnMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50px"
+            android:text="Notes on Map"
+            android:onClick="showNotesOnMap"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
