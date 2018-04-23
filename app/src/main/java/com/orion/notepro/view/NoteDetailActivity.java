@@ -2,7 +2,6 @@ package com.orion.notepro.view;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TextInputEditText;
@@ -21,8 +20,6 @@ import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
