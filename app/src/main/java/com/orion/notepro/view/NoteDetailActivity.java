@@ -13,6 +13,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.google.android.gms.maps.model.LatLng;
 import com.orion.notepro.R;
 import com.orion.notepro.controller.DatabaseHelper;
@@ -30,6 +32,10 @@ public class NoteDetailActivity extends AppCompatActivity {
     @BindView(R.id.edtNoteTitle)
     TextInputEditText edtNoteTitle;
 
+    @BindView(R.id.slider)
+    SliderLayout sliderShow;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,19 @@ public class NoteDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         initScreen();
+    }
+
+    private void initScreen() {
+
+//        sliderShow = (SliderLayout) findViewById(R.id.slider);
+        TextSliderView textSliderView = new TextSliderView(this);
+        textSliderView
+                .description("Toronto")
+                .image("https://www.toronto.ca/wp-content/uploads/2018/03/8842-toronto-skyline.jpg");
+
+        sliderShow.addSlider(textSliderView);
+
+//        setUpToolbar(); Comentado para ser usado quando for implementar o note view
     }
 
     @Override
@@ -57,6 +76,12 @@ public class NoteDetailActivity extends AppCompatActivity {
                 Log.w("NotePro", "Menu item not implemented");
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        sliderShow.stopAutoCycle();
+        super.onStop();
     }
 
     private void saveNote() {
@@ -80,10 +105,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void initScreen() {
 
-//        setUpToolbar(); Comentado para ser usado quando for implementar o note view
-    }
 
     private void setUpToolbar() {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
