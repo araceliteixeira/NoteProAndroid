@@ -59,23 +59,14 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
 
     private void initScreen() {
-
-        TextSliderView textSliderView = new TextSliderView(this);
-        textSliderView
-                .description("Toronto")
-                .image("https://www.toronto.ca/wp-content/uploads/2018/03/8842-toronto-skyline.jpg");
-
-        sliderShow.addSlider(textSliderView);
-
-
-
+        addViewToSlider("Toronto", "https://www.toronto.ca/wp-content/uploads/2018/03/8842-toronto-skyline.jpg");
 //        setUpToolbar(); Comentado para ser usado quando for implementar o note view
     }
 
-    private void addViewToSlider(String imagePath) {
+    private void addViewToSlider(String description, String imagePath) {
         TextSliderView textSliderView = new TextSliderView(this);
         textSliderView
-                .description("1 photo of 10")
+                .description(description)
                 .image(new File(imagePath));
 
         sliderShow.addSlider(textSliderView);
@@ -111,7 +102,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             Log.i("NotePro", mCurrentPhotoPath);
-            addViewToSlider(mCurrentPhotoPath);
+            addViewToSlider("1 photo of 10", mCurrentPhotoPath);
         }
     }
 
