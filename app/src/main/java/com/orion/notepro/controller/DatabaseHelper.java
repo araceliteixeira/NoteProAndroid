@@ -1,5 +1,6 @@
 package com.orion.notepro.controller;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +10,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.orion.notepro.model.Media;
+import com.orion.notepro.model.MediaType;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
@@ -41,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL, DATETIME TEXT NOT NULL, LATITUDE REAL NOT NULL, LONGITUDE REAL NOT NULL, " +
                 "SUBJECT_ID INTEGER NOT NULL, FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECT(SUBJECT_ID));";
         String CREATE_MEDIA_TABLE = "CREATE TABLE IF NOT EXISTS MEDIA (MEDIA_ID INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                "NOTE_ID INTEGER NOT NULL, AUDIO BLOB NOT NULL, PICTURE BLOB NOT NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
+                "NOTE_ID INTEGER NOT NULL, AUDIO TEXT NOT NULL, PICTURE BLOB NOT NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
 
         db.execSQL(CREATE_SUBJECT_TABLE);
         db.execSQL(CREATE_NOTE_TABLE);
@@ -105,10 +109,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void addMedia(Media media) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        //values.put("note_id", media.getPicture());
-        //values.put("audio", media.getAudio()));
-        //values.put("picture", media.getPicture());
-        //values.put("mediatype", media.getMediaId());
+        values.put("note_id", media.getNoteId());
+        //I changed database to text, path. Instead of blob
+        //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
+        values.put("audio", media.getAudio().getAbsolutePath());
+        values.put("picture", media.getPictureAsBlob());
+        values.put("mediatype", media.getMediaId());
 
         db.insert("MEDIA",null, values);
         db.close();
@@ -117,7 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<Subject> selectAllSubjects() {
         SQLiteDatabase db = getReadableDatabase();
 
-        String sql = "SELECT * FROM SUBJECT;";
+        String sql = "SELECT * FROM SUBJECT WHERE ACTIVE = 1;";
 
         Cursor c = db.rawQuery(sql, null);
         List<Subject> subjectList = new ArrayList<Subject>();
@@ -178,6 +184,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return noteList;
     }
 
+    public List<Media> selectAllMedia() {
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT MEDIA_ID, NOTE_ID, AUDIO, PICTURE, MEDIATYPE FROM MEDIA";
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Media> mediaList = new ArrayList<Media>();
+
+        while (c.moveToNext()) {
+            int id = c.getInt(c.getColumnIndex("MEDIA_ID"));
+            int noteId = c.getInt(c.getColumnIndex("NOTE_ID"));
+            //I changed the database to text, so saved path
+            //byte[] audioByte = c.getBlob(c.getColumnIndex("AUDIO"));
+            String audioByte = c.getString(c.getColumnIndex("AUDIO"));
+            byte[] pictureByte = c.getBlob(c.getColumnIndex("PICTURE"));
+            int mediaTypeId = c.getInt(c.getColumnIndex("MEDIATYPE"));
+
+            Bitmap picture = BitmapFactory.decodeByteArray(pictureByte, 0, pictureByte.length);
+            //Convert byte[] to File ???
+
+            //Convert path to File
+            File audio = new File(audioByte);
+
+            MediaType mediaType;
+            if (mediaTypeId == 1) {
+                mediaType = MediaType.PHOTO;
+                mediaList.add(new Media(id, picture, mediaType, noteId));
+            } else {
+                mediaType = MediaType.AUDIO;
+                mediaList.add(new Media(id, audio, mediaType, noteId));
+            }
+        }
+        c.close();
+
+        return mediaList;
+    }
+
     public List<Note> selectNotesBySubject(Subject subject) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -210,4 +252,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return noteList;
     }
+
+    public int updateSubject(Subject subject) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("description", subject.getSubject());
+        values.put("color", subject.getColor());
+
+        return db.update("SUBJECT", values, "SUBJECT_ID" + " = ?",
+                new String[]{String.valueOf(subject.getSubjectId())});
+    }
+
+    public int updateNote(Note note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", note.getTitle());
+        values.put("description", note.getDescription());
+        values.put("datetime", note.getDateTimeAsString());
+        values.put("latitude", note.getLatLng().latitude);
+        values.put("longitude", note.getLatLng().longitude);
+        values.put("subject_id", note.getSubject().getSubjectId());
+
+        return db.update("NOTE", values, "NOTE_ID" + " = ?",
+                new String[]{String.valueOf(note.getNoteId())});
+    }
+
+    public int updateMedia(Media media) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("note_id", media.getNoteId());
+        //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
+        values.put("audio", media.getAudio().getAbsolutePath());
+        values.put("picture", media.getPictureAsBlob());
+        values.put("mediatype", media.getMediaId());
+
+        return db.update("MEDIA", values, "MEDIA_ID" + " = ?",
+                new String[]{String.valueOf(media.getMediaId())});
+    }
+
+    public int deleteSubject(Subject subject) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("active", 0);
+
+        return db.update("SUBJECT", values, "SUBJECT_ID" + " = ?",
+                new String[]{String.valueOf(subject.getSubjectId())});
+    }
+
+    public void deleteNote(Note note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("NOTE", "NOTE_ID" + " = ?",
+                new String[]{String.valueOf(note.getNoteId())});
+        db.close();
+    }
+
+    public void deleteMedia(Media media) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("MEDIA", "MEDIA_ID" + " = ?",
+                new String[]{String.valueOf(media.getMediaId())});
+        db.close();
+    }
+
 }

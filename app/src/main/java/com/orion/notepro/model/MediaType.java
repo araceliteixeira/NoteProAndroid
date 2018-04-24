@@ -8,6 +8,7 @@ public enum MediaType implements Serializable {
 
     private String stringValue;
     private int intValue;
+
     private MediaType(String toString, int value) {
         stringValue = toString;
         intValue = value;

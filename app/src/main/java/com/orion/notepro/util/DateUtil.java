@@ -1,5 +1,10 @@
 package com.orion.notepro.util;
 
+import android.graphics.Bitmap;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.sql.Blob;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,4 +36,12 @@ public class DateUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return LocalDateTime.parse(dateTimeAsString, formatter);
     }
+
+    public static byte[] bitmapToBlob (Bitmap picture) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        picture.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bArray = bos.toByteArray();
+        return bArray;
+    }
+
 }
