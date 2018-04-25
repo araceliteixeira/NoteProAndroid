@@ -28,6 +28,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +36,7 @@ import butterknife.OnClick;
 
 public class NoteDetailActivity extends AppCompatActivity {
 
+    static final String TAG = "NotePro";
     static final int REQUEST_TAKE_PHOTO = 1;
 
     @BindView(R.id.edtNoteTitle)
@@ -45,6 +47,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private String mCurrentPhotoPath;
     private List<Media> medias = new ArrayList<>();
+    private Note noteToEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,22 @@ public class NoteDetailActivity extends AppCompatActivity {
     private void initScreen() {
         ImagePicker.setMinQuality(600, 600);
 //        setUpToolbar(); Comentado para ser usado quando for implementar o note view
+        if (isToEditNote()) {
+            Log.i(TAG, "Edit note: " + noteToEdit.toString());
+            edtNoteTitle.setText(noteToEdit.getTitle());
+            noteToEdit.getMedias().forEach(new Consumer<Media>() {
+                @Override
+                public void accept(Media media) {
+                    addViewToSlider("Test", media.getAudio().getAbsolutePath());
+                    medias.add(media);
+                }
+            });
+        }
+    }
+
+    private boolean isToEditNote() {
+        noteToEdit = (Note) getIntent().getSerializableExtra("note");
+        return noteToEdit != null;
     }
 
     private void addViewToSlider(String description, String imagePath) {
@@ -104,31 +123,38 @@ public class NoteDetailActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             mCurrentPhotoPath = ImagePicker.getImagePathFromResult(this, requestCode, resultCode, data);
-            Log.i("NotePro", mCurrentPhotoPath);
+            Log.i(TAG, mCurrentPhotoPath);
             medias.add(new Media(new File(mCurrentPhotoPath), MediaType.PHOTO));
             addViewToSlider("1 photo of 10", mCurrentPhotoPath);
         }
     }
 
     private void saveNote() {
-        Log.i("NotePro", edtNoteTitle.getText().toString());
-
-        //public Note(String title, String description, Subject subject, LocalDateTime dateTime, LatLng latLng) {
-        final Note note = new Note(
+        Log.i(TAG, edtNoteTitle.getText().toString());
+        Note note;
+        if (isToEditNote()) {
+            noteToEdit.setTitle(edtNoteTitle.getText().toString());
+            noteToEdit.setSubject(new Subject(1,"Personal", Color.BLUE));
+            noteToEdit.setDateTime(LocalDateTime.now());
+            noteToEdit.setLatLng(new LatLng(43.653226, -79.383184));
+            note = noteToEdit;
+        } else {
+            note = new Note(
                 edtNoteTitle.getText().toString(),
                 "Test Description",
                 new Subject(1,"Personal", Color.BLUE),
                 LocalDateTime.now(),
                 new LatLng(43.653226, -79.383184));
+        }
 
         DatabaseHelper dao = new DatabaseHelper(this);
         note.setMedias(medias);
-        dao.addNote(note);
+        dao.save(note);
 
         //Only to see if the note was saved
         List<Note> notes = dao.selectAllNotes();
         for (Note n : notes) {
-            Log.i("NotePro", n.toString());
+            Log.i(TAG, n.toString());
         }
     }
 

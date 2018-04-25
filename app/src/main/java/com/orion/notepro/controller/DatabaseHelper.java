@@ -256,11 +256,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             double longitude = c.getDouble(c.getColumnIndex("NOTE_LONGITUDE"));
             double latitude = c.getDouble(c.getColumnIndex("NOTE_LATITUDE"));
 
-            noteList.add(new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude)));
+            Note note = new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude));
+            note.setMedias(selectMediasByNote(note));
+            noteList.add(note);
         }
         c.close();
 
         return noteList;
+    }
+
+    public List<Media> selectMediasByNote(Note note) {
+        List<Media> mediaList = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT " +
+                "MEDIA_ID, " +
+                "NOTE_ID, " +
+                "AUDIO, " +
+                "PICTURE, " +
+                "MEDIATYPE " +
+                "FROM MEDIA " +
+                "WHERE NOTE_ID = " + note.getNoteId();
+
+        db.compileStatement(sql);
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Note> noteList = new ArrayList<Note>();
+
+        while (c.moveToNext()) {
+            long id = c.getInt(c.getColumnIndex("MEDIA_ID"));
+            long noteId = c.getInt(c.getColumnIndex("NOTE_ID"));
+            //I changed the database to text, so saved path
+            //byte[] audioByte = c.getBlob(c.getColumnIndex("AUDIO"));
+            String mediaPath = c.getString(c.getColumnIndex("AUDIO"));
+            byte[] pictureByte = c.getBlob(c.getColumnIndex("PICTURE"));
+            int mediaTypeId = c.getInt(c.getColumnIndex("MEDIATYPE"));
+
+            MediaType mediaType = mediaTypeId == 1 ? MediaType.PHOTO : MediaType.AUDIO;
+            mediaList.add(new Media(id, new File(mediaPath), mediaType, noteId));
+        }
+        c.close();
+
+        return mediaList;
     }
 
     public int updateSubject(Subject subject) {
@@ -273,7 +310,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(subject.getSubjectId())});
     }
 
-    public int updateNote(Note note) {
+    public void updateNote(final Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("title", note.getTitle());
@@ -283,17 +320,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("longitude", note.getLatLng().longitude);
         values.put("subject_id", note.getSubject().getSubjectId());
 
-        return db.update("NOTE", values, "NOTE_ID" + " = ?",
+        db.update("NOTE", values, "NOTE_ID" + " = ?",
                 new String[]{String.valueOf(note.getNoteId())});
+
+        note.getMedias().forEach(new Consumer<Media>() {
+            @Override
+            public void accept(Media media) {
+                if (media.getMediaId() == -1) {
+                    addMedia(media, note.getNoteId());
+                } else {
+                    updateMedia(media, note.getNoteId());
+                }
+            }
+        });
     }
 
-    public int updateMedia(Media media) {
+    public int updateMedia(Media media, long noteId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("note_id", media.getNoteId());
+        values.put("note_id", noteId);
         //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
         values.put("audio", media.getAudio().getAbsolutePath());
-        values.put("picture", media.getPictureAsBlob());
+//        values.put("r", media.getPictureAsBlob());
         values.put("mediatype", media.getMediaId());
 
         return db.update("MEDIA", values, "MEDIA_ID" + " = ?",
@@ -322,6 +370,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete("MEDIA", "MEDIA_ID" + " = ?",
                 new String[]{String.valueOf(media.getMediaId())});
         db.close();
+    }
+
+    public void save(Note note) {
+        if (note.getNoteId() != -1) {
+            updateNote(note);
+        } else {
+            addNote(note);
+        }
     }
 
 }
