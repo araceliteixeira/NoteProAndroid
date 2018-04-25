@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -45,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL, DATETIME TEXT NOT NULL, LATITUDE REAL NOT NULL, LONGITUDE REAL NOT NULL, " +
                 "SUBJECT_ID INTEGER NOT NULL, FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECT(SUBJECT_ID));";
         String CREATE_MEDIA_TABLE = "CREATE TABLE IF NOT EXISTS MEDIA (MEDIA_ID INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                "NOTE_ID INTEGER NOT NULL, AUDIO TEXT NOT NULL, PICTURE BLOB NOT NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
+                "NOTE_ID INTEGER NOT NULL, AUDIO TEXT NOT NULL, PICTURE BLOB NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
 
         db.execSQL(CREATE_SUBJECT_TABLE);
         db.execSQL(CREATE_NOTE_TABLE);
@@ -91,7 +92,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void addNote(Note note) {
+    public void addNote(final Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("title", note.getTitle());
@@ -101,22 +102,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("longitude", note.getLatLng().longitude);
         values.put("subject_id", note.getSubject().getSubjectId());
 
-        long response = db.insert("NOTE",null, values);
-        Log.i("NotePro", "Insert return: " + response);
+        final long noteId = db.insert("NOTE",null, values);
+
+        note.getMedias().forEach(new Consumer<Media>() {
+            @Override
+            public void accept(Media media) {
+                addMedia(media, noteId);
+            }
+        });
+
+        Log.i("NotePro", "Insert note ID: " + noteId);
         db.close();
     }
 
-    public void addMedia(Media media) {
+    public void addMedia(Media media, long noteId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("note_id", media.getNoteId());
+        values.put("note_id", noteId);
         //I changed database to text, path. Instead of blob
         //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
         values.put("audio", media.getAudio().getAbsolutePath());
-        values.put("picture", media.getPictureAsBlob());
+//        values.put("picture", media.getPictureAsBlob());
         values.put("mediatype", media.getMediaId());
 
-        db.insert("MEDIA",null, values);
+        long mediaId = db.insert("MEDIA",null, values);
+        Log.i("NotePro", "Insert media ID: " + mediaId);
         db.close();
     }
 

@@ -19,11 +19,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.mvc.imagepicker.ImagePicker;
 import com.orion.notepro.R;
 import com.orion.notepro.controller.DatabaseHelper;
+import com.orion.notepro.model.Media;
+import com.orion.notepro.model.MediaType;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,6 +44,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     SliderLayout sliderShow;
 
     private String mCurrentPhotoPath;
+    private List<Media> medias = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             mCurrentPhotoPath = ImagePicker.getImagePathFromResult(this, requestCode, resultCode, data);
             Log.i("NotePro", mCurrentPhotoPath);
+            medias.add(new Media(new File(mCurrentPhotoPath), MediaType.PHOTO));
             addViewToSlider("1 photo of 10", mCurrentPhotoPath);
         }
     }
@@ -117,6 +122,7 @@ public class NoteDetailActivity extends AppCompatActivity {
                 new LatLng(43.653226, -79.383184));
 
         DatabaseHelper dao = new DatabaseHelper(this);
+        note.setMedias(medias);
         dao.addNote(note);
 
         //Only to see if the note was saved

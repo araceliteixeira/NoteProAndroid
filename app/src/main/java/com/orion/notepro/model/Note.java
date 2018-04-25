@@ -5,6 +5,9 @@ import android.location.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.orion.notepro.util.DateUtil;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,8 +20,8 @@ public class Note implements Serializable {
     private String description;
     private Subject subject;
     private LocalDateTime dateTime;
-    private LatLng latLng;
     private List<Media> medias;
+    private transient LatLng latLng;
 
     public Note(long noteId, String title, String description, Subject subject, LocalDateTime dateTime, LatLng latLng) {
         this.noteId = noteId;
@@ -119,5 +122,16 @@ public class Note implements Serializable {
                 ", latLng=" + latLng +
                 ", medias=" + medias +
                 '}';
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeDouble(latLng.latitude);
+        out.writeDouble(latLng.longitude);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        latLng = new LatLng(in.readDouble(), in.readDouble());
     }
 }

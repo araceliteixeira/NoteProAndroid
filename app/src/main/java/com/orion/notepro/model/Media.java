@@ -22,6 +22,13 @@ public class Media implements Serializable {
         this.noteId = noteId;
     }
 
+    public Media(File file, MediaType type) {
+        this.audio = file;
+        this.type = type;
+        this.mediaId = -1;
+        this.noteId = -1;
+    }
+
     public Media(long mediaId, File audio, MediaType type, long noteId) {
         this.mediaId = mediaId;
         this.picture = null;
