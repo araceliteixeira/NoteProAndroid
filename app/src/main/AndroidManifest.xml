@@ -50,6 +50,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <meta-data android:name="android.app.searchable"
+            android:resource="@xml/searchable" />
+
         <activity
             android:name=".view.MapsActivity"
             android:label="@string/title_activity_maps"></activity>
