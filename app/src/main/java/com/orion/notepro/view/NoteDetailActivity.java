@@ -67,7 +67,7 @@ public class NoteDetailActivity extends AppCompatActivity {
             noteToEdit.getMedias().forEach(new Consumer<Media>() {
                 @Override
                 public void accept(Media media) {
-                    addViewToSlider("Test", media.getAudio().getAbsolutePath());
+                    addViewToSlider("Test", media.getMediaFile().getAbsolutePath());
                     medias.add(media);
                 }
             });
@@ -156,6 +156,8 @@ public class NoteDetailActivity extends AppCompatActivity {
         for (Note n : notes) {
             Log.i(TAG, n.toString());
         }
+
+        finish();
     }
 
     private void setUpToolbar() {

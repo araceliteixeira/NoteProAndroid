@@ -11,8 +11,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -46,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL, DATETIME TEXT NOT NULL, LATITUDE REAL NOT NULL, LONGITUDE REAL NOT NULL, " +
                 "SUBJECT_ID INTEGER NOT NULL, FOREIGN KEY (SUBJECT_ID) REFERENCES SUBJECT(SUBJECT_ID));";
         String CREATE_MEDIA_TABLE = "CREATE TABLE IF NOT EXISTS MEDIA (MEDIA_ID INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                "NOTE_ID INTEGER NOT NULL, AUDIO TEXT NOT NULL, PICTURE BLOB NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
+                "NOTE_ID INTEGER NOT NULL, MEDIA_PATH TEXT NOT NULL, MEDIATYPE INTEGER NOT NULL, FOREIGN KEY (NOTE_ID) REFERENCES NOTE(NOTE_ID));";
 
         db.execSQL(CREATE_SUBJECT_TABLE);
         db.execSQL(CREATE_NOTE_TABLE);
@@ -119,10 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("note_id", noteId);
-        //I changed database to text, path. Instead of blob
-        //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
-        values.put("audio", media.getAudio().getAbsolutePath());
-//        values.put("picture", media.getPictureAsBlob());
+        values.put("media_path", media.getMediaFile().getAbsolutePath());
         values.put("mediatype", media.getMediaId());
 
         long mediaId = db.insert("MEDIA",null, values);
@@ -196,34 +191,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<Media> selectAllMedia() {
         SQLiteDatabase db = getReadableDatabase();
-        String sql = "SELECT MEDIA_ID, NOTE_ID, AUDIO, PICTURE, MEDIATYPE FROM MEDIA";
+        String sql = "SELECT MEDIA_ID, NOTE_ID, MEDIA_PATH, MEDIATYPE FROM MEDIA";
 
         Cursor c = db.rawQuery(sql, null);
         List<Media> mediaList = new ArrayList<Media>();
 
         while (c.moveToNext()) {
-            int id = c.getInt(c.getColumnIndex("MEDIA_ID"));
-            int noteId = c.getInt(c.getColumnIndex("NOTE_ID"));
-            //I changed the database to text, so saved path
-            //byte[] audioByte = c.getBlob(c.getColumnIndex("AUDIO"));
-            String audioByte = c.getString(c.getColumnIndex("AUDIO"));
-            byte[] pictureByte = c.getBlob(c.getColumnIndex("PICTURE"));
+            long id = c.getInt(c.getColumnIndex("MEDIA_ID"));
+            long noteId = c.getInt(c.getColumnIndex("NOTE_ID"));
+            String mediaPath = c.getString(c.getColumnIndex("MEDIA_PATH"));
             int mediaTypeId = c.getInt(c.getColumnIndex("MEDIATYPE"));
 
-            Bitmap picture = BitmapFactory.decodeByteArray(pictureByte, 0, pictureByte.length);
-            //Convert byte[] to File ???
-
-            //Convert path to File
-            File audio = new File(audioByte);
-
-            MediaType mediaType;
-            if (mediaTypeId == 1) {
-                mediaType = MediaType.PHOTO;
-                mediaList.add(new Media(id, picture, mediaType, noteId));
-            } else {
-                mediaType = MediaType.AUDIO;
-                mediaList.add(new Media(id, audio, mediaType, noteId));
-            }
+            MediaType mediaType = mediaTypeId == 1 ? MediaType.PHOTO : MediaType.AUDIO;
+            mediaList.add(new Media(id, new File(mediaPath), mediaType, noteId));
         }
         c.close();
 
@@ -272,8 +252,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String sql = "SELECT " +
                 "MEDIA_ID, " +
                 "NOTE_ID, " +
-                "AUDIO, " +
-                "PICTURE, " +
+                "MEDIA_PATH, " +
                 "MEDIATYPE " +
                 "FROM MEDIA " +
                 "WHERE NOTE_ID = " + note.getNoteId();
@@ -286,10 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         while (c.moveToNext()) {
             long id = c.getInt(c.getColumnIndex("MEDIA_ID"));
             long noteId = c.getInt(c.getColumnIndex("NOTE_ID"));
-            //I changed the database to text, so saved path
-            //byte[] audioByte = c.getBlob(c.getColumnIndex("AUDIO"));
-            String mediaPath = c.getString(c.getColumnIndex("AUDIO"));
-            byte[] pictureByte = c.getBlob(c.getColumnIndex("PICTURE"));
+            String mediaPath = c.getString(c.getColumnIndex("MEDIA_PATH"));
             int mediaTypeId = c.getInt(c.getColumnIndex("MEDIATYPE"));
 
             MediaType mediaType = mediaTypeId == 1 ? MediaType.PHOTO : MediaType.AUDIO;
@@ -339,9 +315,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("note_id", noteId);
-        //values.put("audio", media.getAudio().getAbsolutePath().getBytes());
-        values.put("audio", media.getAudio().getAbsolutePath());
-//        values.put("r", media.getPictureAsBlob());
+        values.put("media_path", media.getMediaFile().getAbsolutePath());
         values.put("mediatype", media.getMediaId());
 
         return db.update("MEDIA", values, "MEDIA_ID" + " = ?",

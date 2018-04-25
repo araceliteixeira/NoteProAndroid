@@ -1,29 +1,23 @@
 package com.orion.notepro.model;
 
-import android.graphics.Bitmap;
-
-import com.orion.notepro.util.DateUtil;
-
 import java.io.File;
 import java.io.Serializable;
 
 public class Media implements Serializable {
     private long mediaId;
-    private Bitmap picture;
-    private File audio;
+    private File mediaFile;
     private MediaType type;
     private long noteId;
 
-    public Media(long mediaId, Bitmap picture, MediaType type, long noteId) {
+    public Media(long mediaId, MediaType type, long noteId) {
         this.mediaId = mediaId;
-        this.picture = picture;
-        this.audio = null;
+        this.mediaFile = null;
         this.type = type;
         this.noteId = noteId;
     }
 
     public Media(File file, MediaType type) {
-        this.audio = file;
+        this.mediaFile = file;
         this.type = type;
         this.mediaId = -1;
         this.noteId = -1;
@@ -31,24 +25,21 @@ public class Media implements Serializable {
 
     public Media(long mediaId, File audio, MediaType type, long noteId) {
         this.mediaId = mediaId;
-        this.picture = null;
-        this.audio = audio;
+        this.mediaFile = audio;
         this.type = type;
         this.noteId = noteId;
     }
 
-    public Media(Bitmap picture, MediaType type, long noteId) {
+    public Media(MediaType type, long noteId) {
         this.mediaId = -1;
-        this.picture = picture;
-        this.audio = null;
+        this.mediaFile = null;
         this.type = type;
         this.noteId = noteId;
     }
 
     public Media(File audio, MediaType type, long noteId) {
         this.mediaId = -1;
-        this.picture = null;
-        this.audio = audio;
+        this.mediaFile = audio;
         this.type = type;
         this.noteId = noteId;
     }
@@ -61,24 +52,12 @@ public class Media implements Serializable {
         this.mediaId = mediaId;
     }
 
-    public Bitmap getPicture() {
-        return picture;
+    public File getMediaFile() {
+        return mediaFile;
     }
 
-    public byte[] getPictureAsBlob() {
-        return DateUtil.bitmapToBlob(picture);
-    }
-
-    public void setPicture(Bitmap picture) {
-        this.picture = picture;
-    }
-
-    public File getAudio() {
-        return audio;
-    }
-
-    public void setAudio(File audio) {
-        this.audio = audio;
+    public void setMediaFile(File mediaFile) {
+        this.mediaFile = mediaFile;
     }
 
     public MediaType getType() {
