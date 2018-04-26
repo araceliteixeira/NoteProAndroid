@@ -14,6 +14,10 @@ public enum MediaType implements Serializable {
         intValue = value;
     }
 
+    public int intValue() {
+        return intValue;
+    }
+
     @Override
     public String toString() {
         return stringValue;

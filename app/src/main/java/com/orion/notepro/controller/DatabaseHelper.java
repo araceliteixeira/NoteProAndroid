@@ -118,7 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("note_id", noteId);
         values.put("media_path", media.getMediaFile().getAbsolutePath());
-        values.put("mediatype", media.getMediaId());
+        values.put("mediatype", media.getType().intValue());
 
         long mediaId = db.insert("MEDIA",null, values);
         Log.i("NotePro", "Insert media ID: " + mediaId);
@@ -301,6 +301,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update("NOTE", values, "NOTE_ID" + " = ?",
                 new String[]{String.valueOf(note.getNoteId())});
 
+        deleteAudiosMediaByNote(note);
         note.getMedias().forEach(new Consumer<Media>() {
             @Override
             public void accept(Media media) {
@@ -318,7 +319,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("note_id", noteId);
         values.put("media_path", media.getMediaFile().getAbsolutePath());
-        values.put("mediatype", media.getMediaId());
+        values.put("mediatype", media.getType().intValue());
 
         return db.update("MEDIA", values, "MEDIA_ID" + " = ?",
                 new String[]{String.valueOf(media.getMediaId())});
@@ -345,6 +346,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("MEDIA", "MEDIA_ID" + " = ?",
                 new String[]{String.valueOf(media.getMediaId())});
+        db.close();
+    }
+
+    public void deleteAudiosMediaByNote(Note note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("MEDIA", "NOTE_ID = ? AND MEDIATYPE = ?",
+                new String[]{String.valueOf(note.getNoteId()), String.valueOf(MediaType.AUDIO.intValue())});
         db.close();
     }
 

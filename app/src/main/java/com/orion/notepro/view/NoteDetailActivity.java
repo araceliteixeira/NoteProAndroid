@@ -35,6 +35,7 @@ import com.orion.notepro.util.Player;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -116,24 +117,29 @@ public class NoteDetailActivity extends AppCompatActivity {
             public void onFinish(long recordTime) {
                 recorder.stopRecording();
                 addAudioMedia(recorder.getFileName());
-                audioSeekBar.setMax(new Long(recordTime).intValue());
                 Log.d("RecordView", "onFinish. File name: " + recorder.getFileName() + ". RecordTime: " + new Long(recordTime).intValue());
             }
 
             @Override
             public void onLessThanSecond() {
                 Log.d("RecordView", "onLessThanSecond");
+                recorder.stopRecording();
+                if(isToEditNote()){
+                    recorder.setInitialAudioFile(noteToEdit.getAudio().getMediaFile());
+                }
             }
         });
     }
 
     private void addAudioMedia(String fileName) {
+        Log.i(TAG, "BEFORE addAudioMedia: " + Arrays.toString(medias.toArray()));
         medias.removeIf(new Predicate<Media>() {
             @Override
             public boolean test(Media media) {
                 return MediaType.AUDIO.equals(media.getType());
             }
         });
+        Log.i(TAG, "AFTER addAudioMedia: " + Arrays.toString(medias.toArray()));
         medias.add(new Media(new File(recorder.getFileName()), MediaType.AUDIO));
     }
 
@@ -170,13 +176,14 @@ public class NoteDetailActivity extends AppCompatActivity {
     private void prepareToEditNote() {
         Log.i(TAG, "Edit note: " + noteToEdit.toString());
         edtNoteTitle.setText(noteToEdit.getTitle());
-        noteToEdit.getMedias().forEach(new Consumer<Media>() {
+        noteToEdit.getPhotos().forEach(new Consumer<Media>() {
             @Override
             public void accept(Media media) {
                 addViewToSlider("Test", media.getMediaFile().getAbsolutePath());
-                medias.add(media);
             }
         });
+        medias = noteToEdit.getMedias();
+        recorder.setInitialAudioFile(noteToEdit.getAudio().getMediaFile());
     }
 
     private void addViewToSlider(String description, String imagePath) {
@@ -249,6 +256,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         }
 
         DatabaseHelper dao = new DatabaseHelper(this);
+        Log.i(TAG, "saveNote: mediasBeforeSave: " + Arrays.toString(medias.toArray()));
         note.setMedias(medias);
         dao.save(note);
 

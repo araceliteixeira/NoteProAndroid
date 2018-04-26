@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Note implements Serializable {
     private long noteId;
@@ -134,5 +138,28 @@ public class Note implements Serializable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         latLng = new LatLng(in.readDouble(), in.readDouble());
+    }
+
+    public List<Media> getPhotos() {
+        final List<Media> photos = new ArrayList<>();
+        medias.forEach(new Consumer<Media>() {
+            @Override
+            public void accept(Media media) {
+                if(MediaType.PHOTO.equals(media.getType())) photos.add(media);
+            }
+        });
+
+        return photos;
+    }
+
+    public Media getAudio() {
+        Media audio = medias.stream().filter(new Predicate<Media>() {
+            @Override
+            public boolean test(Media media) {
+                return MediaType.AUDIO.equals(media.getType());
+            }
+        }).findFirst().get();
+
+        return audio;
     }
 }

@@ -52,6 +52,7 @@ public class Player {
             try {
                 mPlayer.setDataSource(mOutputFile.getAbsolutePath());
                 mPlayer.prepare();
+                playbackInfoListener.onDurationChanged(mPlayer.getDuration());
                 mPlayer.start();
 
                 if (playbackInfoListener != null) {
@@ -94,13 +95,22 @@ public class Player {
     }
 
     public void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
+        try{
+            mRecorder.stop();
+        } catch(RuntimeException stopException){
+            Log.w(TAG, "stopRecording: stop after start without content");
+        } finally {
+            mRecorder.release();
+            mRecorder = null;
+        }
     }
 
     public String getFileName() {
         return mOutputFile.getAbsolutePath();
+    }
+
+    public void setInitialAudioFile(File audioFile) {
+        this.mOutputFile = audioFile;
     }
 
     public void releasePlayers() {

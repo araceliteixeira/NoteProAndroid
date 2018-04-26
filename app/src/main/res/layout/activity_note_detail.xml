@@ -69,13 +69,6 @@
 
                 </android.support.design.widget.TextInputLayout>
 
-                <Button
-                    android:id="@+id/btnMap"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Show Map"
-                    android:onClick="showMap" />
-
                 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:app="http://schemas.android.com/apk/res-auto"
                     xmlns:tools="http://schemas.android.com/tools"
@@ -129,6 +122,13 @@
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@id/pauseButton" />
                 </RelativeLayout>
+
+                <Button
+                    android:id="@+id/btnMap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Show Map"
+                    android:onClick="showMap" />
 
             </LinearLayout>
 

@@ -75,4 +75,14 @@ public class Media implements Serializable {
     public void setNoteId(long noteId) {
         this.noteId = noteId;
     }
+
+    @Override
+    public String toString() {
+        return "Media{" +
+                "mediaId=" + mediaId +
+                ", mediaFile=" + mediaFile +
+                ", type=" + type +
+                ", noteId=" + noteId +
+                '}';
+    }
 }
