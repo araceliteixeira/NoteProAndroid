@@ -13,6 +13,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //getApplicationContext().deleteDatabase("noteproandroid.db");
     }
 
     public void showSubjectList(View view) {
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void showNotesOnMap(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra("allNotes", 1);
         startActivity(intent);
     }
 }
