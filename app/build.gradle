@@ -37,4 +37,5 @@ dependencies {
     implementation 'com.daimajia.slider:library:1.1.5@aar'
     implementation 'com.github.Mariovc:ImagePicker:1.2.2'
     implementation 'com.devlomi.record-view:record-view:1.2.2beta'
+    implementation 'com.baoyz.swipemenulistview:library:1.3.0'
 }

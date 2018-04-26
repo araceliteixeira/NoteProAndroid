@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.SubjectDetailActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.SubjectDetailActivity">
+    android:orientation="vertical"
+    android:layout_margin="50px">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Subject:"
+        android:textSize="18dp"/>
+
+    <EditText
+        android:id="@+id/subject_detail_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Subject description"
+        android:inputType="textCapSentences"
+        android:textSize="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Color:"
+        android:textSize="18dp"/>
+
+    <Button
+        android:id="@+id/pick_color"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="150dp"
+        android:background="@android:color/holo_blue_light"
+        android:text=""
+        android:onClick="showColorPicker" />
+
+</LinearLayout>
