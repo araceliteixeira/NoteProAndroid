@@ -1,11 +1,16 @@
 package com.orion.notepro.view;
 
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,10 +18,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.orion.notepro.R;
 import com.orion.notepro.controller.DatabaseHelper;
 import com.orion.notepro.controller.NoteListAdapter;
+import com.orion.notepro.controller.SubjectListAdapter;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 
@@ -28,10 +39,11 @@ import java.util.List;
 
 public class NoteListActivity extends AppCompatActivity {
 
-    private ListView noteList;
+    private SwipeMenuListView noteList;
     private List<Note> notes;
     private SearchView searchView;
     private MenuItem searchMenuItem;
+    private NoteListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +53,27 @@ public class NoteListActivity extends AppCompatActivity {
         noteList = findViewById(R.id.note_list);
         registerForContextMenu(noteList);
 
+        loadNoteList();
+
+        noteList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Note note = (Note) noteList.getItemAtPosition(position);
+
+                Intent intent = new Intent(NoteListActivity.this, NoteDetailActivity.class);
+                intent.putExtra("note", note);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        loadNoteList();
+        super.onResume();
+    }
+
+    private void loadNoteList() {
         Subject subject = (Subject) getIntent().getSerializableExtra("subject");
 
         DatabaseHelper dao = new DatabaseHelper(this);
@@ -59,19 +92,10 @@ public class NoteListActivity extends AppCompatActivity {
             }
         }
 
-        final NoteListAdapter adapter = new NoteListAdapter(this, R.layout.activity_note_list, notes);
+        adapter = new NoteListAdapter(this, R.layout.activity_note_list, notes);
         noteList.setAdapter(adapter);
 
-        noteList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Note note = (Note) noteList.getItemAtPosition(position);
-
-                Intent intent = new Intent(NoteListActivity.this, NoteDetailActivity.class);
-                intent.putExtra("note", note);
-                startActivity(intent);
-            }
-        });
+        configureSwipe();
     }
 
     @Override
@@ -123,6 +147,12 @@ public class NoteListActivity extends AppCompatActivity {
             case R.id.sort_date:
                 sortDate();
                 return true;
+            case R.id.action_left:
+                noteList.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+                return true;
+            case R.id.action_right:
+                noteList.setSwipeDirection(SwipeMenuListView.DIRECTION_RIGHT);
+                return true;
             default:
                 Log.w("NotePro", "Menu item not implemented");
                 return super.onOptionsItemSelected(item);
@@ -146,5 +176,83 @@ public class NoteListActivity extends AppCompatActivity {
         });
     }
 
+    private void configureSwipe() {
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
 
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "open" item
+                SwipeMenuItem editItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                editItem.setBackground(new ColorDrawable(Color.GRAY));
+                // set item width
+                editItem.setWidth(dp2px(90));
+                // set item title
+                editItem.setTitle("Edit");
+                // set item title fontsize
+                editItem.setTitleSize(18);
+                // set item title font color
+                editItem.setTitleColor(Color.WHITE);
+                // add to menu
+                menu.addMenuItem(editItem);
+
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
+                        0x3F, 0x25)));
+                // set item width
+                deleteItem.setWidth(dp2px(90));
+                // set a icon
+                deleteItem.setIcon(R.drawable.ic_delete);
+                // add to menu
+                menu.addMenuItem(deleteItem);
+            }
+        };
+
+        noteList.setMenuCreator(creator);
+
+        noteList.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                Note note = (Note) noteList.getItemAtPosition(position);
+                switch (index) {
+                    case 0:
+                        Intent intent = new Intent(NoteListActivity.this, NoteDetailActivity.class);
+                        intent.putExtra("note", note);
+                        startActivity(intent);
+                        break;
+                    case 1:
+                        deleteNote(note);
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+    private int dp2px(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
+                getResources().getDisplayMetrics());
+    }
+
+    private void deleteNote(Note note) {
+        final Note note_ = note;
+        new AlertDialog.Builder(this)
+                .setTitle("Alert")
+                .setMessage("Do you really want to delete this note?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        DatabaseHelper dao = new DatabaseHelper(NoteListActivity.this);
+                        dao.deleteNote(note_);
+                        dao.close();
+                        loadNoteList();
+                        Toast.makeText(NoteListActivity.this, "Note deleted", Toast.LENGTH_SHORT).show();
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
+    }
 }
