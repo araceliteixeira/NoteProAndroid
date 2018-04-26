@@ -182,7 +182,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             final Subject subject = new Subject(subjectId, subjectDescription, color);
 
-            noteList.add(new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude)));
+            Note note = new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude));
+            note.setMedias(selectMediasByNote(note));
+            noteList.add(note);
         }
         c.close();
 

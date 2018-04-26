@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -120,7 +121,7 @@ public class Note implements Serializable {
                 ", subject=" + subject +
                 ", dateTime=" + dateTime +
                 ", latLng=" + latLng +
-                ", medias=" + medias +
+                ", medias=" + Arrays.toString(medias.toArray()) +
                 '}';
     }
 
