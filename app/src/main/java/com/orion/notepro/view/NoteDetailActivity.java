@@ -1,12 +1,16 @@
 package com.orion.notepro.view;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,6 +21,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
@@ -33,6 +38,13 @@ import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
 import com.orion.notepro.util.PlaybackInfoListener;
 import com.orion.notepro.util.Player;
+import com.yayandroid.locationmanager.LocationManager;
+import com.yayandroid.locationmanager.configuration.DefaultProviderConfiguration;
+import com.yayandroid.locationmanager.configuration.GooglePlayServicesConfiguration;
+import com.yayandroid.locationmanager.configuration.LocationConfiguration;
+import com.yayandroid.locationmanager.configuration.PermissionConfiguration;
+import com.yayandroid.locationmanager.constants.ProviderType;
+import com.yayandroid.locationmanager.listener.LocationListener;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -41,6 +53,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,6 +66,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     static final String TAG = "NotePro";
     static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int LOCATION_PERMISSION_ID = 1001;
 
     @BindView(R.id.edtNoteTitle)
     TextInputEditText edtNoteTitle;
@@ -79,15 +94,15 @@ public class NoteDetailActivity extends AppCompatActivity {
     private List<Subject> subjects = new ArrayList<>();
     private Note noteToEdit;
     private boolean isUserSeeking = false;
-
     private final Player recorder = new Player();
+    private Location currentLocation;
+    private LocationManager locationManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {/**/
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_detail);
         ButterKnife.bind(this);
-
         initScreen();
     }
 
@@ -98,12 +113,23 @@ public class NoteDetailActivity extends AppCompatActivity {
         prepareToShowSpinner(0, null);
         prepareAudioRecordButton();
         prepareAudioSeekbar();
+        getCurrentLocation();
 
         if (isToEditNote()) {
             prepareToShowSpinner(1, noteToEdit.getSubject().getSubject());
             prepareToEditNote();
-
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void prepareAudioRecordButton() {
@@ -206,6 +232,61 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     }
 
+    private void getCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(NoteDetailActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(NoteDetailActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_ID);
+            return;
+        }
+        LocationConfiguration awesomeConfiguration = new LocationConfiguration.Builder()
+                .useDefaultProviders(
+                        new DefaultProviderConfiguration.Builder()
+                                .build())
+                .build();
+        LocationManager.enableLog(true);
+        locationManager = new LocationManager.Builder(getApplicationContext())
+                .configuration(awesomeConfiguration)
+                .activity(this)
+                .notify(new LocationListener() {
+                    @Override
+                    public void onProcessTypeChanged(int processType) {
+                        Log.i(TAG, "onProcessTypeChanged");
+                    }
+
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        currentLocation = location;
+                        Log.i(TAG, "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
+                    }
+
+                    @Override
+                    public void onLocationFailed(int type) {
+                        Log.i(TAG, "onLocationFailed");
+                    }
+
+                    @Override
+                    public void onPermissionGranted(boolean alreadyHadPermission) {
+                        Log.i(TAG, "onPermissionGranted");
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                        Log.i(TAG, "onStatusChanged");
+                    }
+
+                    @Override
+                    public void onProviderEnabled(String provider) {
+                        Log.i(TAG, "onProviderEnabled");
+                    }
+
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                        Log.i(TAG, "onProviderDisabled");
+                    }
+                })
+                .build();
+        locationManager.get();
+    }
+
     private boolean isToEditNote() {
         noteToEdit = (Note) getIntent().getSerializableExtra("note");
         return noteToEdit != null;
@@ -215,12 +296,11 @@ public class NoteDetailActivity extends AppCompatActivity {
         Log.i(TAG, "Edit note: " + noteToEdit.toString());
         edtNoteTitle.setText(noteToEdit.getTitle());
         edtNoteDescription.setText(noteToEdit.getDescription());
-        noteToEdit.getPhotos().forEach(new Consumer<Media>() {
-            @Override
-            public void accept(Media media) {
-                addViewToSlider("Test", media.getMediaFile().getAbsolutePath());
-            }
-        });
+
+        List<Media> photos = noteToEdit.getPhotos();
+        for (int i = 1; i <= photos.size(); i++) {
+            addViewToSlider(i + " of " + photos.size() + " photo(s)", photos.get(i-1).getMediaFile().getAbsolutePath());
+        }
         medias = noteToEdit.getMedias();
         recorder.setInitialAudioFile(noteToEdit.getAudio().getMediaFile());
     }
@@ -272,13 +352,33 @@ public class NoteDetailActivity extends AppCompatActivity {
             mCurrentPhotoPath = ImagePicker.getImagePathFromResult(this, requestCode, resultCode, data);
             Log.i(TAG, mCurrentPhotoPath);
             medias.add(new Media(new File(mCurrentPhotoPath), MediaType.PHOTO));
-            addViewToSlider("1 photo of 10", mCurrentPhotoPath);
+            long photosAmount = medias.stream().filter(new Predicate<Media>() {
+                @Override
+                public boolean test(Media media) {
+                    return MediaType.PHOTO.equals(media.getType());
+                }
+            }).count();
+            sliderShow.removeAllSliders();
+            for (int i = 0; i < photosAmount; i++) {
+                if(MediaType.PHOTO.equals(medias.get(i).getType())) {
+                    addViewToSlider((i + 1) + " of " + photosAmount + " photo(s)", medias.get(i).getMediaFile().getAbsolutePath());
+                }
+            }
         }
     }
 
     private void saveNote() {
+
         Log.i(TAG, edtNoteTitle.getText().toString());
         Log.i(TAG, edtNoteSubject.getSelectedItem().toString());
+
+        if(currentLocation != null) {
+            Log.i(TAG, "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
+        } else {
+            Log.i(TAG, "NO LOCATION!!!!!!!");
+        }
+
+
         Note note;
         if (isToEditNote()) {
             noteToEdit.setTitle(edtNoteTitle.getText().toString());
@@ -289,11 +389,11 @@ public class NoteDetailActivity extends AppCompatActivity {
             note = noteToEdit;
         } else {
             note = new Note(
-                edtNoteTitle.getText().toString(),
+                    edtNoteTitle.getText().toString(),
                     edtNoteDescription.getText().toString(),
-                getSubjectByString(edtNoteSubject.getSelectedItem().toString()),
-                LocalDateTime.now(),
-                new LatLng(43.653226, -79.383184));
+                    getSubjectByString(edtNoteSubject.getSelectedItem().toString()),
+                    LocalDateTime.now(),
+                    new LatLng(43.653226, -79.383184));
         }
 
         DatabaseHelper dao = new DatabaseHelper(this);
@@ -339,7 +439,8 @@ public class NoteDetailActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MapsActivity.class);
         if (noteToEdit != null) {
             Bundle args = new Bundle();
-            args.putParcelable("noteEditLatLong",noteToEdit.getLatLng());
+//            args.putParcelable("noteEditLatLong", noteToEdit.getLatLng());
+            args.putParcelable("noteEditLatLong", new LatLng(43.653226, -79.383184));
             intent.putExtra("bundle", args);
         }
         intent.putExtra("eachNote", 1);
