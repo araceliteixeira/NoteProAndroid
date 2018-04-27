@@ -36,6 +36,7 @@ import com.orion.notepro.model.Media;
 import com.orion.notepro.model.MediaType;
 import com.orion.notepro.model.Note;
 import com.orion.notepro.model.Subject;
+import com.orion.notepro.util.DateUtil;
 import com.orion.notepro.util.PlaybackInfoListener;
 import com.orion.notepro.util.Player;
 import com.yayandroid.locationmanager.LocationManager;
@@ -70,6 +71,9 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.edtNoteTitle)
     TextInputEditText edtNoteTitle;
+
+    @BindView(R.id.edtNoteDate)
+    TextInputEditText edtNoteDate;
 
     @BindView(R.id.slider)
     SliderLayout sliderShow;
@@ -108,12 +112,12 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void initScreen() {
         ImagePicker.setMinQuality(600, 600);
-//        setUpToolbar(); Comentado para ser usado quando for implementar o note view
 
         prepareToShowSpinner(0, null);
         prepareAudioRecordButton();
         prepareAudioSeekbar();
         getCurrentLocation();
+        setCurrentDate();
 
         if (isToEditNote()) {
             prepareToShowSpinner(1, noteToEdit.getSubject().getSubject());
@@ -287,6 +291,10 @@ public class NoteDetailActivity extends AppCompatActivity {
         locationManager.get();
     }
 
+    private void setCurrentDate() {
+        edtNoteDate.setText(DateUtil.dateTimeToString(LocalDateTime.now()));
+    }
+
     private boolean isToEditNote() {
         noteToEdit = (Note) getIntent().getSerializableExtra("note");
         return noteToEdit != null;
@@ -296,6 +304,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         Log.i(TAG, "Edit note: " + noteToEdit.toString());
         edtNoteTitle.setText(noteToEdit.getTitle());
         edtNoteDescription.setText(noteToEdit.getDescription());
+        edtNoteDate.setText(DateUtil.dateTimeToString(noteToEdit.getDateTime()));
 
         List<Media> photos = noteToEdit.getPhotos();
         for (int i = 1; i <= photos.size(); i++) {
@@ -424,15 +433,6 @@ public class NoteDetailActivity extends AppCompatActivity {
             }
         }
         return sub;
-    }
-
-    private void setUpToolbar() {
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle("Test");
-        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
     }
 
     public void showMap(View view) {
