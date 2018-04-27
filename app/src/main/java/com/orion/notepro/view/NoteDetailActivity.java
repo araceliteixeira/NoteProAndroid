@@ -14,7 +14,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
@@ -66,8 +68,15 @@ public class NoteDetailActivity extends AppCompatActivity {
     @BindView(R.id.audioSeekBar)
     SeekBar audioSeekBar;
 
+    @BindView(R.id.edtNoteDescription)
+    TextInputEditText edtNoteDescription;
+
+    @BindView(R.id.edtNoteSubject)
+    Spinner edtNoteSubject;
+
     private String mCurrentPhotoPath;
     private List<Media> medias = new ArrayList<>();
+    private List<Subject> subjects = new ArrayList<>();
     private Note noteToEdit;
     private boolean isUserSeeking = false;
 
@@ -86,11 +95,14 @@ public class NoteDetailActivity extends AppCompatActivity {
         ImagePicker.setMinQuality(600, 600);
 //        setUpToolbar(); Comentado para ser usado quando for implementar o note view
 
+        prepareToShowSpinner(0, null);
         prepareAudioRecordButton();
         prepareAudioSeekbar();
 
         if (isToEditNote()) {
+            prepareToShowSpinner(1, noteToEdit.getSubject().getSubject());
             prepareToEditNote();
+
         }
     }
 
@@ -168,6 +180,32 @@ public class NoteDetailActivity extends AppCompatActivity {
                 });
     }
 
+    private void prepareToShowSpinner(int auxEdit, String subjectEdit) {
+        DatabaseHelper dao = new DatabaseHelper(this);
+        subjects = dao.selectAllSubjects();
+        List<String> spinnerArray = new ArrayList<String>();
+
+        if (subjects.isEmpty()) {
+            dao.addSomeSubjects();
+            subjects = dao.selectAllSubjects();
+        }
+
+        for (Subject subject : subjects) {
+            spinnerArray.add(subject.getSubject());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        edtNoteSubject.setAdapter(adapter);
+        if (auxEdit == 1) {
+            int spinnerPosition = adapter.getPosition(subjectEdit);
+            edtNoteSubject.setSelection(spinnerPosition);
+        }
+
+    }
+
     private boolean isToEditNote() {
         noteToEdit = (Note) getIntent().getSerializableExtra("note");
         return noteToEdit != null;
@@ -176,6 +214,7 @@ public class NoteDetailActivity extends AppCompatActivity {
     private void prepareToEditNote() {
         Log.i(TAG, "Edit note: " + noteToEdit.toString());
         edtNoteTitle.setText(noteToEdit.getTitle());
+        edtNoteDescription.setText(noteToEdit.getDescription());
         noteToEdit.getPhotos().forEach(new Consumer<Media>() {
             @Override
             public void accept(Media media) {
@@ -239,18 +278,20 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     private void saveNote() {
         Log.i(TAG, edtNoteTitle.getText().toString());
+        Log.i(TAG, edtNoteSubject.getSelectedItem().toString());
         Note note;
         if (isToEditNote()) {
             noteToEdit.setTitle(edtNoteTitle.getText().toString());
-            noteToEdit.setSubject(new Subject(1,"Personal", Color.BLUE));
+            noteToEdit.setDescription(edtNoteDescription.getText().toString());
+            noteToEdit.setSubject(getSubjectByString(edtNoteSubject.getSelectedItem().toString()));
             noteToEdit.setDateTime(LocalDateTime.now());
             noteToEdit.setLatLng(new LatLng(43.653226, -79.383184));
             note = noteToEdit;
         } else {
             note = new Note(
                 edtNoteTitle.getText().toString(),
-                "Test Description",
-                new Subject(1,"Personal", Color.BLUE),
+                    edtNoteDescription.getText().toString(),
+                getSubjectByString(edtNoteSubject.getSelectedItem().toString()),
                 LocalDateTime.now(),
                 new LatLng(43.653226, -79.383184));
         }
@@ -267,6 +308,22 @@ public class NoteDetailActivity extends AppCompatActivity {
         }
 
         finish();
+    }
+
+    private Subject getSubjectByString(String string) {
+        Subject sub = new Subject(1,"Personal", Color.BLUE);
+        DatabaseHelper dao = new DatabaseHelper(this);
+        subjects = dao.selectAllSubjects();
+        for (Subject subject : subjects) {
+            System.out.println("from obj  "+subject.getSubject());
+            System.out.println("from parametro  "+string);
+            if (subject.getSubject().equals(string)) {
+                sub = subject;
+                System.out.println("entra igual");
+
+            }
+        }
+        return sub;
     }
 
     private void setUpToolbar() {
