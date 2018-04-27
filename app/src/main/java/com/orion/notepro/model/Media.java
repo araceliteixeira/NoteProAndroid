@@ -9,6 +9,8 @@ public class Media implements Serializable {
     private MediaType type;
     private long noteId;
 
+    Media(){}
+
     public Media(long mediaId, MediaType type, long noteId) {
         this.mediaId = mediaId;
         this.mediaFile = null;

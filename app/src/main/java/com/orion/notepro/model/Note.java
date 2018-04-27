@@ -158,7 +158,7 @@ public class Note implements Serializable {
             public boolean test(Media media) {
                 return MediaType.AUDIO.equals(media.getType());
             }
-        }).findFirst().get();
+        }).findFirst().orElse(new EmptyMedia());
 
         return audio;
     }
