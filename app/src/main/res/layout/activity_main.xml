@@ -20,47 +20,63 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:orientation="vertical">
+
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="24dp"
-            android:text="Welcome!" />
+            android:fontFamily="casual"
+            android:text="Welcome!"
+            android:textColor="#99a7f7"
+            android:textSize="26dp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btnSubjectList"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="70px"
+            android:backgroundTint="#9999ff"
+            android:fontFamily="casual"
+            android:onClick="showSubjectList"
             android:text="Subject List"
-            android:onClick="showSubjectList"/>
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/btnNewNote"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50px"
+            android:backgroundTint="#9999ff"
+            android:fontFamily="casual"
+            android:onClick="createNewNote"
             android:text="New Note"
-            android:onClick="createNewNote"/>
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/btnNoteList"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50px"
+            android:backgroundTint="#9999ff"
+            android:fontFamily="casual"
+            android:onClick="showNoteList"
             android:text="Note List"
-            android:onClick="showNoteList"/>
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/btnShowNotesOnMap"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50px"
             android:text="Notes on Map"
-            android:onClick="showNotesOnMap"/>
+            android:onClick="showNotesOnMap"
+            android:backgroundTint="#9999ff"
+            android:fontFamily="casual"
+            android:textStyle="italic" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
