@@ -280,7 +280,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
     public void showMap(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
-        if (noteToEdit.getLatLng() != null) {
+        if (noteToEdit != null) {
             Bundle args = new Bundle();
             args.putParcelable("noteEditLatLong",noteToEdit.getLatLng());
             intent.putExtra("bundle", args);

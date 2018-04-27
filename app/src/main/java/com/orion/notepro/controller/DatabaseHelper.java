@@ -68,15 +68,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void addSomeNotes() {
         List<Subject> subjects = selectAllSubjects();
+        if (subjects.isEmpty()) {
+            addSomeSubjects();
+        }
 
         for (int i = 0; i < subjects.size(); i++) {
             addNote(new Note("Title " + i + "-1", "Description " + i + "-1",
                     subjects.get(i), LocalDateTime.of(2018, 04, i+1, 10+i, 0),
-                    new LatLng(43.6532, -79.3832)));
+                    new LatLng(35.6532, -70.3832)));
 
             addNote(new Note("Title " + i + "-2", "Description " + i + "-2",
                     subjects.get(i), LocalDateTime.of(2018, 04, i+2, 11+i, 0),
-                    new LatLng(43.6532, -79.3832)));
+                    new LatLng(53.6532, -89.3832)));
         }
     }
 
