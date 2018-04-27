@@ -59,12 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(note.getLatLng()));
             }
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(43.7615, -79.4110)));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(2.0f));
-        } else {
-            LatLng latlng = new LatLng(43.7615, -79.4110);
-            mMap.addMarker(new MarkerOptions().position(latlng));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f));
+            //mMap.animateCamera(CameraUpdateFactory.zoomTo(2.0f));
         }
     }
 }
