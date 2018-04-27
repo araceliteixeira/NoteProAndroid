@@ -439,8 +439,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MapsActivity.class);
         if (noteToEdit != null) {
             Bundle args = new Bundle();
-//            args.putParcelable("noteEditLatLong", noteToEdit.getLatLng());
-            args.putParcelable("noteEditLatLong", new LatLng(43.653226, -79.383184));
+            args.putParcelable("noteEditLatLong", noteToEdit.getLatLng());
             intent.putExtra("bundle", args);
         }
         intent.putExtra("eachNote", 1);
