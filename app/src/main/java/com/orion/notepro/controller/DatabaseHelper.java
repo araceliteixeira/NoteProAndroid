@@ -191,6 +191,141 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return noteList;
     }
 
+    public List<Note> sortNotesByTitle() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT " +
+                "NOTE.NOTE_ID AS NOTE_ID, " +
+                "NOTE.TITLE AS NOTE_TITLE, " +
+                "NOTE.DESCRIPTION AS NOTE_DESCRIPTION, " +
+                "NOTE.DATETIME AS NOTE_DATETIME, " +
+                "NOTE.LONGITUDE AS NOTE_LONGITUDE, " +
+                "NOTE.LATITUDE AS NOTE_LATITUDE, " +
+                "SUBJECT.SUBJECT_ID AS SUBJECT_ID, " +
+                "SUBJECT.DESCRIPTION AS SUBJECT_DESCRIPTION, " +
+                "SUBJECT.COLOR AS SUBJECT_COLOR " +
+                "FROM NOTE INNER JOIN SUBJECT ON NOTE.SUBJECT_ID = SUBJECT.SUBJECT_ID " +
+                "ORDER BY NOTE.TITLE DESC;";
+
+        db.compileStatement(sql);
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Note> noteList = new ArrayList<Note>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("NOTE_ID"));
+            String title = c.getString(c.getColumnIndex("NOTE_TITLE"));
+            String description = c.getString(c.getColumnIndex("NOTE_DESCRIPTION"));
+            String dateTime = c.getString(c.getColumnIndex("NOTE_DATETIME"));
+            double longitude = c.getDouble(c.getColumnIndex("NOTE_LONGITUDE"));
+            double latitude = c.getDouble(c.getColumnIndex("NOTE_LATITUDE"));
+
+            int subjectId = c.getInt(c.getColumnIndex("SUBJECT_ID"));
+            String subjectDescription = c.getString(c.getColumnIndex("SUBJECT_DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("SUBJECT_COLOR"));
+
+            final Subject subject = new Subject(subjectId, subjectDescription, color);
+
+            Note note = new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude));
+            note.setMedias(selectMediasByNote(note));
+            noteList.add(note);
+        }
+        c.close();
+
+        return noteList;
+    }
+
+    public List<Note> sortNotesByDate() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT " +
+                "NOTE.NOTE_ID AS NOTE_ID, " +
+                "NOTE.TITLE AS NOTE_TITLE, " +
+                "NOTE.DESCRIPTION AS NOTE_DESCRIPTION, " +
+                "NOTE.DATETIME AS NOTE_DATETIME, " +
+                "NOTE.LONGITUDE AS NOTE_LONGITUDE, " +
+                "NOTE.LATITUDE AS NOTE_LATITUDE, " +
+                "SUBJECT.SUBJECT_ID AS SUBJECT_ID, " +
+                "SUBJECT.DESCRIPTION AS SUBJECT_DESCRIPTION, " +
+                "SUBJECT.COLOR AS SUBJECT_COLOR " +
+                "FROM NOTE INNER JOIN SUBJECT ON NOTE.SUBJECT_ID = SUBJECT.SUBJECT_ID " +
+                "ORDER BY NOTE.DATETIME ASC;";
+
+        db.compileStatement(sql);
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Note> noteList = new ArrayList<Note>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("NOTE_ID"));
+            String title = c.getString(c.getColumnIndex("NOTE_TITLE"));
+            String description = c.getString(c.getColumnIndex("NOTE_DESCRIPTION"));
+            String dateTime = c.getString(c.getColumnIndex("NOTE_DATETIME"));
+            double longitude = c.getDouble(c.getColumnIndex("NOTE_LONGITUDE"));
+            double latitude = c.getDouble(c.getColumnIndex("NOTE_LATITUDE"));
+
+            int subjectId = c.getInt(c.getColumnIndex("SUBJECT_ID"));
+            String subjectDescription = c.getString(c.getColumnIndex("SUBJECT_DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("SUBJECT_COLOR"));
+
+            final Subject subject = new Subject(subjectId, subjectDescription, color);
+
+            Note note = new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude));
+            note.setMedias(selectMediasByNote(note));
+            noteList.add(note);
+        }
+        c.close();
+
+        return noteList;
+    }
+
+    public List<Note> searchNotesByTitleOrDesc(String string) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String sql = "SELECT " +
+                "NOTE.NOTE_ID AS NOTE_ID, " +
+                "NOTE.TITLE AS NOTE_TITLE, " +
+                "NOTE.DESCRIPTION AS NOTE_DESCRIPTION, " +
+                "NOTE.DATETIME AS NOTE_DATETIME, " +
+                "NOTE.LONGITUDE AS NOTE_LONGITUDE, " +
+                "NOTE.LATITUDE AS NOTE_LATITUDE, " +
+                "SUBJECT.SUBJECT_ID AS SUBJECT_ID, " +
+                "SUBJECT.DESCRIPTION AS SUBJECT_DESCRIPTION, " +
+                "SUBJECT.COLOR AS SUBJECT_COLOR " +
+                "FROM NOTE INNER JOIN SUBJECT ON NOTE.SUBJECT_ID = SUBJECT.SUBJECT_ID " +
+                "WHERE NOTE.TITLE LIKE '%" + string + "%' OR NOTE.DESCRIPTION LIKE '%" + string + "%'";
+
+        db.compileStatement(sql);
+
+        Cursor c = db.rawQuery(sql, null);
+        List<Note> noteList = new ArrayList<Note>();
+
+        while (c.moveToNext()) {
+
+            int id = c.getInt(c.getColumnIndex("NOTE_ID"));
+            String title = c.getString(c.getColumnIndex("NOTE_TITLE"));
+            String description = c.getString(c.getColumnIndex("NOTE_DESCRIPTION"));
+            String dateTime = c.getString(c.getColumnIndex("NOTE_DATETIME"));
+            double longitude = c.getDouble(c.getColumnIndex("NOTE_LONGITUDE"));
+            double latitude = c.getDouble(c.getColumnIndex("NOTE_LATITUDE"));
+
+            int subjectId = c.getInt(c.getColumnIndex("SUBJECT_ID"));
+            String subjectDescription = c.getString(c.getColumnIndex("SUBJECT_DESCRIPTION"));
+            int color = c.getInt(c.getColumnIndex("SUBJECT_COLOR"));
+
+            final Subject subject = new Subject(subjectId, subjectDescription, color);
+
+            Note note = new Note(id, title, description, subject, dateTime, new LatLng(latitude, longitude));
+            note.setMedias(selectMediasByNote(note));
+            noteList.add(note);
+        }
+        c.close();
+
+        return noteList;
+    }
+
     public List<Media> selectAllMedia() {
         SQLiteDatabase db = getReadableDatabase();
         String sql = "SELECT MEDIA_ID, NOTE_ID, MEDIA_PATH, MEDIATYPE FROM MEDIA";

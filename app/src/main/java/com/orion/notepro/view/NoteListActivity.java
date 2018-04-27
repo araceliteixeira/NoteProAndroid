@@ -41,9 +41,11 @@ public class NoteListActivity extends AppCompatActivity {
 
     private SwipeMenuListView noteList;
     private List<Note> notes;
+    private List<Note> newNotes;
     private SearchView searchView;
     private MenuItem searchMenuItem;
     private NoteListAdapter adapter;
+    private DatabaseHelper dao = new DatabaseHelper(NoteListActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class NoteListActivity extends AppCompatActivity {
         noteList = findViewById(R.id.note_list);
         registerForContextMenu(noteList);
 
-        loadNoteList();
+        loadNoteList(null);
 
         noteList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,27 +71,41 @@ public class NoteListActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        loadNoteList();
+        loadNoteList(null);
         super.onResume();
     }
 
-    private void loadNoteList() {
+    private void loadNoteList(String aux) {
         Subject subject = (Subject) getIntent().getSerializableExtra("subject");
 
         DatabaseHelper dao = new DatabaseHelper(this);
-        if (subject == null) {
-            notes = dao.selectAllNotes();
-        } else {
-            notes = dao.selectNotesBySubject(subject);
-        }
 
-        if(notes.size() == 0) {
-            dao.addSomeNotes();
+        if (aux == null) {
             if (subject == null) {
                 notes = dao.selectAllNotes();
+                System.out.println("111");
+
             } else {
                 notes = dao.selectNotesBySubject(subject);
             }
+            if (notes.isEmpty()) {
+                dao.addSomeNotes();
+                if (subject == null) {
+                    notes = dao.selectAllNotes();
+                    System.out.println("2222");
+                } else {
+                    notes = dao.selectNotesBySubject(subject);
+                }
+            }
+        } else if (aux == "t") {
+            notes = dao.sortNotesByTitle();
+            System.out.println("ttttt");
+        } else if (aux == "d") {
+            notes = dao.sortNotesByDate();
+            System.out.println("dddddd");
+        } else {
+            notes = dao.searchNotesByTitleOrDesc(aux);
+            System.out.println("search");
         }
 
         adapter = new NoteListAdapter(this, R.layout.activity_note_list, notes);
@@ -124,6 +140,7 @@ public class NoteListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 System.out.println("onQueryTextSubmit ");
+                loadNoteList(s);
                 return false;
             }
 
@@ -142,10 +159,10 @@ public class NoteListActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.sort_title:
-                sortTitle();
+                loadNoteList("t");
                 return true;
             case R.id.sort_date:
-                sortDate();
+                loadNoteList("d");
                 return true;
             case R.id.action_left:
                 noteList.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
@@ -157,23 +174,6 @@ public class NoteListActivity extends AppCompatActivity {
                 Log.w("NotePro", "Menu item not implemented");
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void sortTitle () {
-        Collections.sort(notes, new Comparator<Note>(){
-            public int compare(Note obj1, Note obj2) {
-                return obj1.getTitle().compareToIgnoreCase(obj2.getTitle());
-                // Descending order
-                // return obj2.getTitle().compareToIgnoreCase(obj1.getTitle());
-            }
-        });
-    }
-    private void sortDate () {
-        Collections.sort(notes, new Comparator<Note>(){
-            public int compare(Note obj1, Note obj2) {
-                return obj1.getDateTime().compareTo(obj2.getDateTime());
-            }
-        });
     }
 
     private void configureSwipe() {
@@ -250,7 +250,7 @@ public class NoteListActivity extends AppCompatActivity {
                         DatabaseHelper dao = new DatabaseHelper(NoteListActivity.this);
                         dao.deleteNote(note_);
                         dao.close();
-                        loadNoteList();
+                        loadNoteList(null);
                         Toast.makeText(NoteListActivity.this, "Note deleted", Toast.LENGTH_SHORT).show();
                     }})
                 .setNegativeButton(android.R.string.no, null).show();

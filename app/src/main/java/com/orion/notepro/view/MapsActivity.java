@@ -33,7 +33,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         notes = dao.selectAllNotes();
 
         Bundle bundle = getIntent().getParcelableExtra("bundle");
-        noteEditLatLong = bundle.getParcelable("noteEditLatLong");
+        if (bundle != null) {
+            noteEditLatLong = bundle.getParcelable("noteEditLatLong");
+        }
 
         auxNote = getIntent().getIntExtra("eachNote",0);
         auxNotes = getIntent().getIntExtra("allNotes",0);
@@ -56,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             for (Note note : notes) {
                 mMap.addMarker(new MarkerOptions().position(note.getLatLng()));
             }
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(noteEditLatLong));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(43.7615, -79.4110)));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f));
         } else {
             LatLng latlng = new LatLng(43.7615, -79.4110);
