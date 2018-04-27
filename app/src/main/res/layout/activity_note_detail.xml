@@ -65,7 +65,9 @@
                         android:id="@+id/edtNoteTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/note_detail_title"/>
+                        android:hint="@string/note_detail_title"
+                        android:inputType="textCapSentences"
+                        />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -76,6 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     tools:context="com.devlomi.recordview.MainActivity">
+
                     <com.devlomi.record_view.RecordView
                         android:id="@+id/recordView"
                         android:layout_width="match_parent"
@@ -83,8 +86,8 @@
                         android:layout_alignParentBottom="true"
                         android:layout_toLeftOf="@id/recordButton"
                         app:slide_to_cancel_arrow="@drawable/ic_keyboard_arrow_left"
-                        app:slide_to_cancel_text="Slide To Cancel"
-                        app:slide_to_cancel_margin_right="10dp"/>
+                        app:slide_to_cancel_margin_right="10dp"
+                        app:slide_to_cancel_text="Slide To Cancel" />
 
                     <com.devlomi.record_view.RecordButton
                         android:id="@+id/recordButton"
@@ -94,25 +97,27 @@
                         android:layout_alignParentRight="true"
                         android:background="@drawable/bg_mic"
                         android:scaleType="centerInside"
-                        app:src="@drawable/ic_mic_white"
-                    />
+                        app:src="@drawable/ic_mic_white" />
                 </RelativeLayout>
-                
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-                    
-                    <ImageButton style="@style/Widget.AppCompat.Button.Colored"
+
+                    <ImageButton
                         android:id="@+id/playButton"
+                        style="@style/Widget.AppCompat.Button.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@android:drawable/ic_media_play" />
-                    <ImageButton style="@style/Widget.AppCompat.Button.Colored"
+
+                    <ImageButton
                         android:id="@+id/pauseButton"
+                        style="@style/Widget.AppCompat.Button.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@android:drawable/ic_media_pause"
-                        android:layout_toRightOf="@id/playButton"/>
+                        android:layout_toRightOf="@id/playButton"
+                        android:src="@android:drawable/ic_media_pause" />
 
                     <android.support.v7.widget.AppCompatSeekBar
                         android:id="@+id/audioSeekBar"
@@ -125,10 +130,11 @@
 
                 <Button
                     android:id="@+id/btnMap"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:onClick="showMap"
                     android:text="Show Map"
-                    android:onClick="showMap" />
+                    />
 
             </LinearLayout>
 
