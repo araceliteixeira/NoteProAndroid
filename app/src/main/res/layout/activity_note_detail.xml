@@ -87,6 +87,20 @@
 
                 </android.support.design.widget.TextInputLayout>
 
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/edtNoteDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:hint="@string/note_date_time"
+                        android:inputType="textCapSentences" />
+
+                </android.support.design.widget.TextInputLayout>
+
                 <Spinner
                     android:id="@+id/edtNoteSubject"
                     android:layout_width="match_parent"
