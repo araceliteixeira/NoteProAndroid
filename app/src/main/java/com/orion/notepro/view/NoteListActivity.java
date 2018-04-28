@@ -83,8 +83,6 @@ public class NoteListActivity extends AppCompatActivity {
         if (aux == null) {
             if (subject == null) {
                 notes = dao.selectAllNotes();
-                System.out.println("111");
-
             } else {
                 notes = dao.selectNotesBySubject(subject);
             }
@@ -92,20 +90,16 @@ public class NoteListActivity extends AppCompatActivity {
                 dao.addSomeNotes();
                 if (subject == null) {
                     notes = dao.selectAllNotes();
-                    System.out.println("2222");
                 } else {
                     notes = dao.selectNotesBySubject(subject);
                 }
             }
         } else if (aux == "t") {
             notes = dao.sortNotesByTitle();
-            System.out.println("ttttt");
         } else if (aux == "d") {
             notes = dao.sortNotesByDate();
-            System.out.println("dddddd");
         } else {
             notes = dao.searchNotesByTitleOrDesc(aux);
-            System.out.println("search");
         }
 
         adapter = new NoteListAdapter(this, R.layout.activity_note_list, notes);

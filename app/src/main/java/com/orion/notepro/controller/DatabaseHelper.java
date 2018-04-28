@@ -28,13 +28,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-    
-    private static final String DROP_SUBJECT_TABLE = "DROP TABLE tbl_authors;";
-    private static final String DROP_NOTE_TABLE = "DROP TABLE tbl_books;";
-    private static final String DROP_MEDIA_TABLE = "DROP TABLE tbl_books;";
-
-    // Our database instance
-    private SQLiteDatabase mDatabase;
 
     @Override
     public void onCreate(SQLiteDatabase db) {
