@@ -53,7 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (auxNote > 0 && noteEditLatLong != null) {
             mMap.addMarker(new MarkerOptions().position(noteEditLatLong));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(noteEditLatLong));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(9.0f));
         } else if (auxNotes > 0 && notes != null) {
             for (Note note : notes) {
                 mMap.addMarker(new MarkerOptions().position(note.getLatLng()));
